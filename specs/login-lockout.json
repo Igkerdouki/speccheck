@@ -1,0 +1,45 @@
+{
+  "ticket": "After 3 failed login attempts, lock the account for 15 minutes. Login should be secure.",
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "After 3 failed attempts, a correct password is rejected (account locked).",
+      "steps": [
+        {"call": "POST /__test__/reset"},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "correct-horse"}, "expect_status": 423}
+      ]
+    },
+    {
+      "id": "R2",
+      "text": "The account is still locked 14 minutes later.",
+      "steps": [
+        {"call": "POST /__test__/reset"},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"advance_minutes": 14},
+        {"call": "POST /login", "json": {"username": "alice", "password": "correct-horse"}, "expect_status": 423}
+      ]
+    },
+    {
+      "id": "R3",
+      "text": "The lock expires after 15 minutes.",
+      "steps": [
+        {"call": "POST /__test__/reset"},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"call": "POST /login", "json": {"username": "alice", "password": "wrong"}, "expect_status": 401},
+        {"advance_minutes": 16},
+        {"call": "POST /login", "json": {"username": "alice", "password": "correct-horse"}, "expect_status": 200}
+      ]
+    },
+    {
+      "id": "R4",
+      "text": "Login should be secure.",
+      "steps": []
+    }
+  ]
+}

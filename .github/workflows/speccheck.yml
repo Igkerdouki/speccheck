@@ -1,0 +1,37 @@
+name: SpecCheck
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  speccheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify requirements against the running app
+        id: check
+        continue-on-error: true
+        run: |
+          python speccheck/speccheck.py specs/login-lockout.json \
+            --start "python demo-app/app.py" \
+            --report report.md
+
+      - name: Post report on the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment ${{ github.event.pull_request.number }} --body-file report.md --edit-last \
+            || gh pr comment ${{ github.event.pull_request.number }} --body-file report.md
+
+      - name: Fail if a requirement is not met
+        if: steps.check.outcome == 'failure'
+        run: exit 1
