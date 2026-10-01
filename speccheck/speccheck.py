@@ -43,7 +43,8 @@ def http(base_url, method, path, body=None):
 
 def run_requirement(base_url, req):
     if not req.get("steps"):
-        return UNVERIFIED, ["Requirement is too vague to test. Rewrite it as a checkable criterion."]
+        reason = req.get("untestable_reason", "Requirement is too vague to test.")
+        return UNVERIFIED, [reason + " Rewrite it as a checkable criterion."]
 
     trace = []
     for step in req["steps"]:

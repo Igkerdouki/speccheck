@@ -1,0 +1,218 @@
+{
+  "ticket": "After 3 failed login attempts, lock the account for 15 minutes.",
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "After three consecutive failed login attempts the account becomes locked and further login attempts return 423.",
+      "steps": [
+        {
+          "call": "POST /__test__/reset"
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "wrong1"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "wrong2"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "wrong3"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 423
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "text": "The lock lasts exactly 15 minutes; attempts before 15 minutes are still locked and after 15 minutes the account is unlocked.",
+      "steps": [
+        {
+          "call": "POST /__test__/reset"
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad1"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad2"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad3"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 423
+        },
+        {
+          "advance_minutes": 14
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 423
+        },
+        {
+          "advance_minutes": 1
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 200
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "text": "The account is not locked before three failed attempts; a successful login before the lock threshold works normally.",
+      "steps": [
+        {
+          "call": "POST /__test__/reset"
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad1"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad2"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 200
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "text": "After the lock period expires the failed\u2011attempt counter resets, allowing three new failures before locking again.",
+      "steps": [
+        {
+          "call": "POST /__test__/reset"
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad1"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad2"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad3"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 423
+        },
+        {
+          "advance_minutes": 15
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad4"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad5"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "bad6"
+          },
+          "expect_status": 401
+        },
+        {
+          "call": "POST /login",
+          "json": {
+            "username": "alice",
+            "password": "correct-horse"
+          },
+          "expect_status": 423
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Login API of the demo app.",
+  "endpoints": [
+    {
+      "call": "POST /login",
+      "body": {"username": "string", "password": "string"},
+      "responses": {"200": "logged in", "401": "invalid credentials", "423": "account locked"}
+    },
+    {"call": "GET /health", "responses": {"200": "app is up"}}
+  ],
+  "test_hooks": [
+    {"call": "POST /__test__/reset", "purpose": "clear all state; use as the first step of every requirement"},
+    {"step": "advance_minutes", "purpose": "move the app's clock forward by N minutes"}
+  ],
+  "test_data": {"users": [{"username": "alice", "password": "correct-horse"}]}
+}
